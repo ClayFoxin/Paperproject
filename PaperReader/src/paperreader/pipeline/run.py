@@ -53,7 +53,13 @@ def run_pipeline(settings: Settings) -> None:
         pdf_path = resolve_pdf(doi, settings.input_pdfs)
         source = pdf_path or (downloaded_xml if downloaded_xml else xml_path)
 
-        parsed_doc = parse_document(source, json_path, doi=doi)
+        parsed_doc = parse_document(
+            source,
+            json_path,
+            doi=doi,
+            host=settings.uniparser_host,
+            token=settings.uniparser_token,
+        )
         cleaned_doc = strip_metadata(parsed_doc)
 
         if not cleaned_doc.get("text"):

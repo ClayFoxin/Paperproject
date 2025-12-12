@@ -4,8 +4,8 @@ PaperReader 是一个用于从科学文献中完成“下载/解析 → 清洗 �
 
 ## 功能概览
 
-1. **原始数据获取**：从 `data/input/doi.xlsx` 读取 DOI，预留 Elsevier API 下载 XML 以及本地 PDF 上传/解析接口（`ingestion/`）。
-2. **文献解析**：通过 `uniparser_adapter` 接入 Uni-parser，将 XML/PDF 解析为 JSON。
+1. **原始数据获取**：从 `data/input/doi.xlsx` 读取 DOI，可调用 Elsevier API 下载 XML 或使用本地 PDF 上传/解析接口（`ingestion/`）。
+2. **文献解析**：通过 `uniparser_adapter` 接入 Uni-parser 远端 HTTP 服务，将 XML/PDF 解析为 JSON。
 3. **清洗**：使用 `cleaning/strip_metadata.py` 去掉题目、作者、参考文献等元信息，只保留正文、表格与图像解析内容。
 4. **LLM 抽取**：`llm/` 目录提供统一的 LLM 客户端、提示词生成器与信息/数据抽取模块，支持自定义提示模板与字段自动生成提示。
 5. **结果落盘**：`io/json_store.py` 写入中间 JSON，`io/xlsx_writer.py` 输出结构化数据表。
@@ -49,7 +49,7 @@ python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 ```
-2. 配置环境变量：复制 `.env.example` 为 `.env`，填写 `OPENAI_API_KEY`（或其他模型的 key/endpoint）。如需使用 DeepSeek，设置 `OPENAI_BASE_URL=https://api.deepseek.com` 并在 `OPENAI_MODEL` 中填写 `deepseek-chat` 或 `deepseek-coder`。
+2. 配置环境变量：复制 `.env.example` 为 `.env`，填写 `OPENAI_API_KEY`（或其他模型的 key/endpoint）。如需使用 DeepSeek，设置 `OPENAI_BASE_URL=https://api.deepseek.com` 并在 `OPENAI_MODEL` 中填写 `deepseek-chat` 或 `deepseek-coder`。若需要自定义 Uni-parser 服务，修改 `UNIPARSER_HOST` 与 `UNIPARSER_TOKEN`（默认已指向内网服务并使用 `article` token）。
 3. 准备输入：
    - 将 DOI 列表放入 `data/input/doi.xlsx`（示例表头：`doi`）。
    - 可选：将 PDF 放入 `data/input/pdfs/`。
@@ -67,7 +67,7 @@ paperreader run
 
 ## 现状与扩展点
 
-- Elsevier API 与 Uni-parser 部分以占位实现为主，方便根据实际 API/二进制配置替换。
+- Uni-parser 解析已对接默认的 HTTP 服务地址，支持通过环境变量切换 Host/Token；Elsevier API 仍可按需替换。
 - 提示词与 schema 在 `llm/prompts.py` 和 `llm/schemas.py` 中集中管理，支持自动构造字段级提示。
 - 如需解析图像、表格或引用，请在 `strip_metadata.py` 与 `llm/data_extract.py` 中扩展字段规则。
 

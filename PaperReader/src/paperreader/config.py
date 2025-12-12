@@ -26,6 +26,8 @@ class Settings:
     openai_model: str
     elsevier_api_key: Optional[str]
     uniparser_cli_path: Optional[str]
+    uniparser_host: Optional[str]
+    uniparser_token: Optional[str]
 
 
 def load_settings(env_path: Optional[Path] = None) -> Settings:
@@ -60,6 +62,8 @@ def load_settings(env_path: Optional[Path] = None) -> Settings:
         openai_model=openai_model,
         elsevier_api_key=os.getenv("ELSEVIER_API_KEY"),
         uniparser_cli_path=os.getenv("UNIPARSER_CLI_PATH"),
+        uniparser_host=os.getenv("UNIPARSER_HOST") or "http://101.126.82.63:40001",
+        uniparser_token=os.getenv("UNIPARSER_TOKEN") or "article",
     )
 
     return settings
