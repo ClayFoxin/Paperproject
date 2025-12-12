@@ -1,0 +1,42 @@
+# ---------- 基础工具 ----------
+requests>=2.31.0
+pandas>=2.2.0
+numpy>=1.26.0
+
+# ---------- Excel 输出 ----------
+openpyxl>=3.1.2
+xlsxwriter>=3.1.0
+
+# ---------- JSON / 配置 ----------
+PyYAML>=6.0.1
+ujson>=5.9.0
+
+# ---------- PDF / XML / HTML 解析 ----------
+beautifulsoup4>=4.12.2
+lxml>=4.9.3
+pdfminer.six>=20221105
+pymupdf>=1.23.8       # 高性能 PDF 解析（推荐）
+PyPDF2>=3.0.0
+
+# ---------- Uni-Parser（如果使用到） ----------
+# 你可以在程序里 pip install Uni-Parser 提示安装
+pdfplumber>=0.10.3     # Uni-Parser 常见依赖
+regex>=2023.10.3
+
+# ---------- 图像解析（如果要解析图像内容） ----------
+pillow>=10.1.0
+pytesseract>=0.3.10    # 需要本机安装 Tesseract OCR（可选）
+
+# ---------- 大语言模型 API ----------
+openai>=1.16.0          # 新版 OpenAI SDK，兼容 deepseek + azure
+httpx>=0.26.0           # OpenAI SDK 内部依赖，但单独安装更稳定
+
+# ---------- 文本处理 ----------
+tqdm>=4.66.1
+python-dotenv>=1.0.0
+
+# ---------- 错误重试 / 稳定运行 ----------
+tenacity>=8.2.3
+
+# ---------- 可选：用于数据字段自动比对、统计抽取 ----------
+rapidfuzz>=3.5.2
