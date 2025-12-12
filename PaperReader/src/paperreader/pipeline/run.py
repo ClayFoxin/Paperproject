@@ -32,7 +32,11 @@ def run_pipeline(settings: Settings) -> None:
         logger.warning("No DOIs to process; exiting")
         return
 
-    llm_client = LLMClient(api_key=settings.openai_api_key, base_url=settings.openai_base_url)
+    llm_client = LLMClient(
+        api_key=settings.openai_api_key,
+        base_url=settings.openai_base_url,
+        model=settings.openai_model,
+    )
     elsevier = ElsevierClient(api_key=settings.elsevier_api_key)
 
     structured_rows: List[dict] = []

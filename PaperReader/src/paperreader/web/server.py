@@ -143,6 +143,7 @@ async def run_endpoint(
     background_tasks: BackgroundTasks,
     openai_api_key: Optional[str] = Form(None),
     openai_base_url: Optional[str] = Form(None),
+    openai_model: Optional[str] = Form(None),
     elsevier_api_key: Optional[str] = Form(None),
 ) -> RedirectResponse:
     if not state.start():
@@ -155,6 +156,8 @@ async def run_endpoint(
         settings = replace(settings, openai_api_key=openai_api_key.strip())
     if openai_base_url:
         settings = replace(settings, openai_base_url=openai_base_url.strip())
+    if openai_model:
+        settings = replace(settings, openai_model=openai_model.strip())
     if elsevier_api_key:
         settings = replace(settings, elsevier_api_key=elsevier_api_key.strip())
 

@@ -49,7 +49,7 @@ python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 ```
-2. 配置环境变量：复制 `.env.example` 为 `.env`，填写 `OPENAI_API_KEY`（或其他模型的 key/endpoint）。
+2. 配置环境变量：复制 `.env.example` 为 `.env`，填写 `OPENAI_API_KEY`（或其他模型的 key/endpoint）。如需使用 DeepSeek，设置 `OPENAI_BASE_URL=https://api.deepseek.com` 并在 `OPENAI_MODEL` 中填写 `deepseek-chat` 或 `deepseek-coder`。
 3. 准备输入：
    - 将 DOI 列表放入 `data/input/doi.xlsx`（示例表头：`doi`）。
    - 可选：将 PDF 放入 `data/input/pdfs/`。

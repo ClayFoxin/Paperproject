@@ -23,6 +23,7 @@ class Settings:
     output_xlsx: Path
     openai_api_key: Optional[str]
     openai_base_url: Optional[str]
+    openai_model: str
     elsevier_api_key: Optional[str]
     uniparser_cli_path: Optional[str]
 
@@ -39,6 +40,12 @@ def load_settings(env_path: Optional[Path] = None) -> Settings:
     input_dir = data_dir / "input"
     output_dir = data_dir / "output"
 
+    openai_api_key = os.getenv("OPENAI_API_KEY")
+    openai_base_url = os.getenv("OPENAI_BASE_URL")
+    openai_model = os.getenv("OPENAI_MODEL") or (
+        "deepseek-chat" if openai_base_url and "deepseek" in openai_base_url.lower() else "gpt-4o-mini"
+    )
+
     settings = Settings(
         base_dir=base_dir,
         data_dir=data_dir,
@@ -48,8 +55,9 @@ def load_settings(env_path: Optional[Path] = None) -> Settings:
         output_cleaned=output_dir / "cleaned_json",
         output_info=output_dir / "info_json",
         output_xlsx=output_dir / "extracted_xlsx",
-        openai_api_key=os.getenv("OPENAI_API_KEY"),
-        openai_base_url=os.getenv("OPENAI_BASE_URL"),
+        openai_api_key=openai_api_key,
+        openai_base_url=openai_base_url,
+        openai_model=openai_model,
         elsevier_api_key=os.getenv("ELSEVIER_API_KEY"),
         uniparser_cli_path=os.getenv("UNIPARSER_CLI_PATH"),
     )

@@ -19,9 +19,12 @@ class LLMClient:
         self.base_url = base_url
         self.model = model
         self.stub = api_key is None
-        self._client = None if self.stub else OpenAI(api_key=api_key, base_url=base_url, http_client=httpx.Client(timeout=60))
         if self.stub:
+            self._client = None
             logger.warning("LLM client initialized in stub mode (no API key provided)")
+        else:
+            timeout_client = httpx.Client(timeout=60)
+            self._client = OpenAI(api_key=api_key, base_url=base_url, http_client=timeout_client)
 
     def chat(self, messages: List[dict], temperature: float = 0.2) -> str:
         """Send chat messages and return the content string."""
