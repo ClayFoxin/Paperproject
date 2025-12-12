@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import List
 
 from paperreader.cleaning.strip_metadata import strip_metadata
+from paperreader.cleaning.llm_clean import clean_with_llm
 from paperreader.config import Settings
 from paperreader.ingestion.elsevier_api import ElsevierClient
 from paperreader.ingestion.uploader import resolve_pdf
@@ -54,6 +55,16 @@ def run_pipeline(settings: Settings) -> None:
 
         parsed_doc = parse_document(source, json_path, doi=doi)
         cleaned_doc = strip_metadata(parsed_doc)
+
+        if not cleaned_doc.get("text"):
+            try:
+                raw_xml = xml_path.read_text(encoding="utf-8", errors="ignore")
+            except FileNotFoundError:
+                raw_xml = ""
+
+            if raw_xml:
+                logger.info("Rule-based清洗为空，使用大模型辅助从 XML 提取正文")
+                cleaned_doc = clean_with_llm(llm_client, raw_xml)
         save_json(parsed_doc, json_path)
         save_json(cleaned_doc, cleaned_path)
 

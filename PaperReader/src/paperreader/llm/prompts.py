@@ -39,3 +39,21 @@ def build_data_prompt(content: str, fields: Dict[str, str]) -> List[dict]:
         {"role": "system", "content": "你是善于提取数据的助手，输出 JSON"},
         {"role": "user", "content": template},
     ]
+
+
+def build_cleaning_prompt(raw_xml: str) -> List[dict]:
+    """Ask the LLM to strip metadata/noise from XML content and return clean text."""
+    user_prompt = """
+请阅读以下期刊文章的 XML 原文，去掉标题、作者、期刊、参考文献等元信息，只保留正文的自然段落与表格/图像说明。请用 JSON 返回：
+- text: 清洗后的正文纯文本
+- tables: 如能识别，请列表说明表格要点；无法确定用空列表
+- figures: 如能识别，请列表说明图像/示意内容；无法确定用空列表
+
+XML 原文：
+{content}
+""".format(content=raw_xml[:6000])
+
+    return [
+        {"role": "system", "content": "你是文献预处理助手，专注从 XML 中提取正文。"},
+        {"role": "user", "content": user_prompt},
+    ]
