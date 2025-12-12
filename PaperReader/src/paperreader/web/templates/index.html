@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PaperReader Web</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <h1>PaperReader Web</h1>
+      <p class="subtitle">上传 DOI/PDF，配置 API Key，一键运行“下载→解析→清洗→LLM 抽取→导出”流水线。</p>
+      <div class="actions">
+        {% if state.running %}
+          <span class="status-chip">⏳ 流水线运行中...</span>
+        {% elif state.last_finish %}
+          <span class="status-chip" style="background:#ecfdf3;color:#166534;">✅ 最近完成于 {{ state.last_finish.strftime('%Y-%m-%d %H:%M') }} UTC</span>
+        {% else %}
+          <span class="status-chip">🟢 已就绪</span>
+        {% endif %}
+        {% if state.last_error %}
+          <span class="badge" style="background:#fef2f2;color:#991b1b;">错误：{{ state.last_error }}</span>
+        {% endif %}
+        {% if state.last_output %}
+          <a class="badge" href="/download?path={{ state.last_output }}">最近导出：{{ state.last_output.name }}</a>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="grid" style="margin-top:1rem;">
+      <div class="card">
+        <h3 class="section-title">1) 上传 DOI 表格</h3>
+        <form action="/upload/doi" method="post" enctype="multipart/form-data">
+          <input class="file-input" type="file" name="file" accept=".xlsx" required />
+          <p class="hint">示例表头：<code>doi</code>。文件将保存到 <code>{{ settings.input_doi }}</code></p>
+          <div class="actions"><button class="button" type="submit">上传 DOI.xlsx</button></div>
+        </form>
+      </div>
+
+      <div class="card">
+        <h3 class="section-title">2) 上传 PDF</h3>
+        <form action="/upload/pdfs" method="post" enctype="multipart/form-data">
+          <input class="file-input" type="file" name="files" accept=".pdf" multiple required />
+          <p class="hint">支持多文件上传，存放在 <code>{{ settings.input_pdfs }}</code></p>
+          <div class="actions"><button class="button" type="submit">上传 PDF</button></div>
+        </form>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:1rem;">
+      <h3 class="section-title">3) 配置 Key 并启动流水线</h3>
+      <form action="/run" method="post">
+        <div class="grid">
+          <div>
+            <label for="openai_api_key">OpenAI / 兼容 LLM Key</label>
+            <input class="input" id="openai_api_key" name="openai_api_key" type="password" placeholder="可选，留空则使用 .env" />
+          </div>
+          <div>
+            <label for="openai_base_url">OpenAI Base URL</label>
+            <input class="input" id="openai_base_url" name="openai_base_url" type="text" placeholder="可选，例如 https://api.openai.com/v1" />
+          </div>
+          <div>
+            <label for="openai_model">模型名称</label>
+            <input class="input" id="openai_model" name="openai_model" type="text" placeholder="可选，例如 deepseek-chat 或 gpt-4o-mini" />
+          </div>
+          <div>
+            <label for="elsevier_api_key">Elsevier API Key</label>
+            <input class="input" id="elsevier_api_key" name="elsevier_api_key" type="password" placeholder="可选，留空则使用 .env" />
+          </div>
+        </div>
+        <div class="actions" style="margin-top:1rem;">
+          <button class="button" type="submit" {% if state.running %}disabled{% endif %}>🚀 运行流水线</button>
+          <span class="hint">将读取 DOI/PDF，调用 Uni-parser & LLM，并导出 XLSX。</span>
+        </div>
+      </form>
+    </div>
+
+    <div class="grid" style="margin-top:1rem;">
+      <div class="card">
+        <h3 class="section-title">输入文件</h3>
+        <table class="table">
+          <tr><th>类型</th><th>位置</th></tr>
+          <tr>
+            <td>DOI 表格</td>
+            <td>{{ settings.input_doi if settings.input_doi.exists() else '未上传' }}</td>
+          </tr>
+          <tr>
+            <td>PDF 数量</td>
+            <td>{{ pdfs|length }} 个 ({{ settings.input_pdfs }})</td>
+          </tr>
+        </table>
+        <ul class="list">
+          {% for pdf in pdfs %}
+            <li>📄 {{ pdf.name }}</li>
+          {% endfor %}
+          {% if pdfs|length == 0 %}
+            <li class="muted">暂无 PDF 上传</li>
+          {% endif %}
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3 class="section-title">输出文件</h3>
+        <ul class="list">
+          <li>解析 JSON：{{ parsed_files|length }} 个</li>
+          <li>清洗 JSON：{{ cleaned_files|length }} 个</li>
+          <li>信息 JSON：{{ info_files|length }} 个</li>
+          <li>XLSX 导出：{{ xlsx_files|length }} 个</li>
+        </ul>
+        <table class="table">
+          <tr><th>类别</th><th>文件</th></tr>
+          {% for file in parsed_files %}
+            <tr><td>原始</td><td><a href="/download?path={{ file }}">{{ file.name }}</a></td></tr>
+          {% endfor %}
+          {% for file in cleaned_files %}
+            <tr><td>清洗</td><td><a href="/download?path={{ file }}">{{ file.name }}</a></td></tr>
+          {% endfor %}
+          {% for file in info_files %}
+            <tr><td>信息</td><td><a href="/download?path={{ file }}">{{ file.name }}</a></td></tr>
+          {% endfor %}
+          {% for file in xlsx_files %}
+            <tr><td>XLSX</td><td><a href="/download?path={{ file }}">{{ file.name }}</a></td></tr>
+          {% endfor %}
+          {% if parsed_files|length + cleaned_files|length + info_files|length + xlsx_files|length == 0 %}
+            <tr><td colspan="2" class="muted">暂无输出文件</td></tr>
+          {% endif %}
+        </table>
+      </div>
+    </div>
+
+    <p class="footer">PaperReader • FastAPI + Jinja2 前端 • 修改 .env 或表单即可自定义 API Key</p>
+  </div>
+</body>
+</html>
