@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "paperreader"
+version = "0.1.0"
+description = "Framework for structured scientific paper extraction pipeline"
+authors = [{name = "PaperReader"}]
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+keywords = ["nlp", "scientific papers", "data extraction", "llm"]
+
+[project.urls]
+Homepage = "https://example.com/paperreader"
+Repository = "https://example.com/paperreader/repo"
+
+[project.scripts]
+paperreader = "paperreader.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
