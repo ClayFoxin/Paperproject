@@ -71,3 +71,19 @@ paperreader run
 - 提示词与 schema 在 `llm/prompts.py` 和 `llm/schemas.py` 中集中管理，支持自动构造字段级提示。
 - 如需解析图像、表格或引用，请在 `strip_metadata.py` 与 `llm/data_extract.py` 中扩展字段规则。
 
+## Web 前端（FastAPI + Jinja2）
+
+你可以通过简单的网页端来上传 DOI/PDF、配置 API Key 并启动全流程：
+
+```bash
+uvicorn paperreader.web.server:app --reload --port 8000
+```
+
+打开浏览器访问 <http://localhost:8000>，完成：
+
+- 上传 `doi.xlsx`（存入 `data/input/doi.xlsx`）
+- 多文件上传 PDF（存入 `data/input/pdfs/`）
+- 表单内覆盖 OpenAI / Elsevier Key（留空则使用 `.env`）
+- 一键触发“下载→解析→清洗→LLM 抽取→XLSX 导出”流水线
+- 直接在页面下载解析/清洗 JSON、信息抽取 JSON，以及最新的 XLSX 导出
+

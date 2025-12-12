@@ -35,6 +35,12 @@ httpx>=0.26.0           # OpenAI SDK 内部依赖，但单独安装更稳定
 tqdm>=4.66.1
 python-dotenv>=1.0.0
 
+# ---------- Web 前端 ----------
+fastapi>=0.110.0
+uvicorn[standard]>=0.23.0
+Jinja2>=3.1.0
+python-multipart>=0.0.9
+
 # ---------- 错误重试 / 稳定运行 ----------
 tenacity>=8.2.3
 
